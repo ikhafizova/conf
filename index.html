@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Растём через гипотезы | Mailfit · Letteros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#00C8F0;--dark:#151515}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Manrope',system-ui,sans-serif}
+#presentation{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;width:1920px;height:1080px;transform-origin:top left}
+
+/* ── Entrance animation ── */
+@keyframes slideUpFade{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.a{animation-duration:.65s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both;animation-delay:var(--d,0s)}
+.slide.active .a{animation-name:slideUpFade}
+
+/* ── Spin animations ── */
+@keyframes spinCW{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+.spin-cw{animation:spinCW var(--sd,60s) linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+.spin-ccw{animation:spinCCW var(--sd,80s) linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+
+/* ── Pulse for diagram nodes ── */
+@keyframes nodePulse{0%,100%{filter:drop-shadow(0 0 0 rgba(0,200,240,0))}50%{filter:drop-shadow(0 0 14px rgba(0,200,240,.55))}}
+
+/* ── Slide container ── */
+.slide{position:absolute;inset:0;width:1920px;height:1080px;opacity:0;pointer-events:none;transition:opacity .35s ease;overflow:hidden}
+.slide.active{opacity:1;pointer-events:auto}
+
+/* ── Standardized footer ── */
+.sfoot{position:absolute;bottom:44px;left:80px;right:80px;display:flex;justify-content:space-between;font-size:14px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.sfoot-dk{color:rgba(255,255,255,.28)}
+.sfoot-lt{color:rgba(0,0,0,.28)}
+
+/* ── Nav dots ── */
+#navdots{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:999;align-items:center}
+.dot{width:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.28);cursor:pointer;transition:all .3s ease}
+.dot.on{width:24px;background:var(--cyan)}
+
+/* ─────────────────────────────────────────────
+   SLIDE 01 — COVER
+───────────────────────────────────────────── */
+#s01{background:#151515;color:#fff}
+.s01lb{position:absolute;top:52px;left:80px;display:flex;align-items:center;gap:50px}
+.s01lb svg{display:block}
+.s01lb .lb-mailfit{color:#fff}
+.s01lb .lb-letteros{color:#fff}
+.cdeco{position:absolute;top:-100px;right:0;width:1200px;pointer-events:none}
+.cdeco svg{display:block;width:100%;height:auto}
+.s01b{position:absolute;top:320px;left:80px}
+.s01t{font-size:140px;font-weight:400;line-height:.8;letter-spacing:-.02em;color:#fff;white-space:nowrap}
+.s01foot-l{position:absolute;bottom:44px;left:80px;font-size:22px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.s01foot-r{position:absolute;bottom:44px;right:80px;font-size:22px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+
+/* ─────────────────────────────────────────────
+   SLIDE 02 — WHO WE ARE
+───────────────────────────────────────────── */
+#s02{background:#151515;color:#fff}
+.s02title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#fff}
+.s02sub{position:absolute;top:324px;left:80px;font-size:32px;font-weight:500;line-height:1.2;color:#fff}
+.s02cols{position:absolute;top:465px;left:80px;right:80px;display:grid;grid-template-columns:1fr 1fr;gap:120px}
+.s02col-label{font-size:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:24px}
+.s02col-title{font-size:50px;font-weight:600;line-height:1.2;color:#fff;margin-bottom:20px}
+.s02col-body{font-size:26px;font-weight:400;line-height:1.5;color:#fff;margin-bottom:28px}
+.s02list{display:flex;flex-direction:column;gap:12px}
+.s02li{font-size:26px;font-weight:500;color:#fff;display:flex;align-items:baseline;gap:14px}
+.arr{color:var(--cyan);flex-shrink:0}
+
+/* ─────────────────────────────────────────────
+   SLIDE 03 — PROBLEM
+───────────────────────────────────────────── */
+#s03{background:#fff;color:#151515}
+.s03title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#151515}
+.s03label{position:absolute;top:96px;right:80px;font-size:44px;font-weight:500;color:#151515}
+.s03row{position:absolute;top:367px;left:80px;right:80px;height:590px;display:flex;gap:0;align-items:flex-start}
+.s03col{flex:1;padding:0 64px;display:flex;flex-direction:column}
+.s03col:first-child{padding-left:0}
+.s03col:last-child{padding-right:0}
+.s03x{margin-bottom:28px}
+.s03ct{font-size:50px;font-weight:600;line-height:1.2;color:#151515;margin-bottom:20px}
+.s03cb{font-size:44px;font-weight:400;line-height:1.2;color:#151515}
+.s03div{width:3px;background:rgba(0,0,0,.1);align-self:stretch;flex-shrink:0}
+
+/* ─────────────────────────────────────────────
+   SLIDE 04 — OUR APPROACH
+───────────────────────────────────────────── */
+#s04{background:#151515;color:#fff}
+.s04title{position:absolute;top:80px;left:80px;max-width:680px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#fff}
+.s04label{position:absolute;top:96px;right:80px;font-size:44px;font-weight:500;color:#fff}
+.s04sub{position:absolute;top:420px;left:80px;max-width:680px;font-size:50px;font-weight:500;line-height:1.2;color:#fff}
+.s04diagram{position:absolute;right:120px;top:0;bottom:0;display:flex;align-items:center}
+
+/* ─────────────────────────────────────────────
+   SLIDE 05 — PRODUCT GROWTH
+───────────────────────────────────────────── */
+#s05{background:#fff;color:#151515}
+.s05title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#151515}
+.s05label{position:absolute;top:96px;right:80px;font-size:44px;font-weight:500;color:#151515}
+.s05cards{position:absolute;top:300px;left:80px;right:80px;display:grid;grid-template-columns:repeat(6,1fr);gap:24px}
+.s05card{border-radius:20px;padding:44px 40px;background:#D1F8FF;display:flex;flex-direction:column;gap:16px}
+.s05card.dark{background:#151515}
+.s05card-icon{font-size:40px}
+.s05card-title{font-size:50px;font-weight:600;line-height:1.2;color:#151515}
+.s05card.dark .s05card-title{color:#fff}
+.s05card-body{font-size:26px;color:#151515;line-height:1.5}
+.s05card.dark .s05card-body{color:#fff}
+.s05card-tag{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#00C8F0}
+
+/* ─────────────────────────────────────────────
+   SLIDE 06 — CRM
+───────────────────────────────────────────── */
+#s06{background:#151515;color:#fff}
+.s06title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#fff}
+.s06label{position:absolute;top:96px;right:80px;font-size:44px;font-weight:500;color:#fff}
+.s06cards{position:absolute;top:300px;left:80px;right:80px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.s06card{background:#1C1C1C;border-radius:20px;padding:44px 36px;border:1px solid rgba(255,255,255,.06)}
+.s06card-title{font-size:50px;font-weight:600;line-height:1.2;color:#fff;margin-bottom:16px}
+.s06card-body{font-size:32px;font-weight:400;line-height:1.3;color:#fff}
+.s06formula{position:absolute;bottom:140px;left:80px;display:flex;align-items:center;gap:32px;font-size:100px;font-weight:600;color:#00C8F0}
+
+/* ─────────────────────────────────────────────
+   SLIDES 07, 08, 09 — CASES
+───────────────────────────────────────────── */
+.scase{background:#fff;color:#151515}
+.scase-title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#151515}
+.scase-label{position:absolute;top:96px;right:80px;font-size:44px;font-weight:500;color:#151515}
+.scase-cards{position:absolute;left:80px;right:80px;bottom:80px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px}
+.scase-card{background:#F4F4F4;border-radius:22px;padding:44px 48px;display:flex;flex-direction:column}
+.scase-card.dark{background:#151515}
+.scase-cardlabel{font-size:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#aaa;margin-bottom:16px}
+.scase-card.dark .scase-cardlabel{color:rgba(255,255,255,.35)}
+.scase-cardtitle{font-size:50px;font-weight:600;line-height:1.2;color:#151515;margin-bottom:16px}
+.scase-card.dark .scase-cardtitle{color:#fff}
+.scase-cardbody{font-size:32px;font-weight:400;line-height:1.3;color:#151515}
+.scase-card.dark .scase-cardbody{color:#fff}
+.resnum{font-size:100px;font-weight:800;color:#00C8F0;letter-spacing:-.03em;line-height:1;margin-top:auto}
+.ressub{font-size:24px;color:rgba(255,255,255,.4);margin-top:8px}
+
+/* ─────────────────────────────────────────────
+   SLIDE 10 — TEAM
+───────────────────────────────────────────── */
+#s10{background:#151515;color:#fff}
+.s10title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;color:#fff}
+.s10grid{position:absolute;top:240px;left:80px;right:80px;bottom:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:60px}
+.tperson{display:flex;flex-direction:column}
+.tphoto{width:350px;height:350px;border-radius:20px;overflow:hidden;position:relative;margin-bottom:22px}
+.tphoto-init{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:72px;font-weight:800;color:rgba(255,255,255,.12)}
+.tphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
+.tname{font-size:50px;font-weight:700;line-height:1.2;color:#fff;margin-bottom:10px}
+.tdesc{font-size:32px;font-weight:400;line-height:1.2;color:#fff;margin-bottom:12px}
+.tcontact{font-size:32px;color:#fff;line-height:1.2}
+.tcontact a{color:#fff;text-decoration:none}
+.tcontact a:hover{text-decoration:underline}
+
+/* ─────────────────────────────────────────────
+   SLIDE 11 — CONTACTS
+───────────────────────────────────────────── */
+#s11{background:#151515;color:#fff}
+.s11title{position:absolute;top:80px;left:80px;font-size:140px;font-weight:400;line-height:.85;color:#fff}
+.s11qrs{position:absolute;top:360px;left:80px;display:flex;gap:60px;align-items:flex-start}
+.s11qrbox{display:flex;flex-direction:column;align-items:flex-start}
+.s11qrcard{width:360px;height:360px;background:#fff;border-radius:24px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.s11qrcard img,.s11qrcard canvas{display:block}
+.s11qrlabel{font-size:44px;font-weight:600;color:#fff;text-decoration:none;display:block}
+.s11qrlabel:hover{text-decoration:underline}
+.s11deco{position:absolute;right:0;top:0;width:1022px;height:1080px;pointer-events:none}
+
+/* ── Print / PDF ── */
+@media print{
+  @page{size:20in 11.25in;margin:0}
+  *{animation:none!important;transition:none!important}
+  html,body{width:1920px;height:auto;overflow:visible;background:#000}
+  #presentation{position:relative;width:1920px;height:auto;overflow:visible}
+  #stage{position:relative!important;width:1920px!important;height:auto!important;transform:none!important;left:0!important;top:0!important}
+  .slide{position:relative!important;width:1920px!important;height:1080px!important;opacity:1!important;pointer-events:auto;page-break-after:always;break-after:page;overflow:hidden;display:block!important}
+  .a{animation:none!important;opacity:1!important;transform:translateY(0)!important}
+  #navdots{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="presentation">
+<div id="stage">
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 01 — COVER
+══════════════════════════════════════════════ -->
+<div class="slide" id="s01">
+
+  <!-- Logo bar -->
+  <div class="s01lb a" style="--d:0s">
+    <!-- Mailfit logo -->
+    <svg class="lb-mailfit" width="267" height="25" viewBox="0 0 267 25" fill="none">
+      <path fill="currentColor" d="M0 25V0H15.4762L25.3401 8.89571L35.2041 0H50V25H0Z"/>
+      <path fill="currentColor" d="M266.539 9.99994H256.002V24.9999H244.96V9.99994H234.423V0H266.539V9.99994Z"/>
+      <path fill="currentColor" d="M115.374 0H126.584L139.336 24.9999H126.809L125.856 22.7173H115.29L114.309 24.9999H102.595L115.374 0ZM118.401 15.4709H122.801L120.615 10.2536L118.401 15.4709Z"/>
+      <path fill="currentColor" d="M72.0006 14.7825V24.9999H60.9589V0H69.6746L80.9125 10.2536L92.0664 0H100.698V24.9999H89.6282V14.7825L80.8284 22.4999L72.0006 14.7825Z"/>
+      <rect fill="currentColor" x="141.234" width="11.0416" height="24.9998"/>
+      <rect fill="currentColor" x="219.325" width="11.0416" height="24.9998"/>
+      <path fill="currentColor" d="M167.265 17.8281H183.715V25H156.223V0H167.265V17.8281Z"/>
+      <path fill="currentColor" d="M215.267 7.17188H198.817V10.1807H211.83V15.3984H198.817V25H187.776V15.3984H187.773V10.1807H187.776V0H215.267V7.17188Z"/>
+    </svg>
+    <!-- Letteros logo -->
+    <svg class="lb-letteros" width="231" height="50" viewBox="0 0 231 50" fill="none">
+      <path fill="currentColor" d="M31.5275 0C41.7286 0 49.9981 8.26959 49.9981 18.4707V31.5275C49.9981 41.7286 41.7286 49.9982 31.5275 49.9982H18.4707C8.26959 49.9982 0 41.7286 0 31.5275V18.4707C0 8.26959 8.26959 0 18.4707 0H31.5275ZM12.4995 17.9463V30.7099L37.4986 37.4989V20.972L24.9991 24.6026V12.4998L12.4995 17.9463Z"/>
+      <path fill="currentColor" d="M62.4551 15.421H72.1846V31.4433H85.2122V37.1146H62.4551V15.421Z"/>
+      <path fill="currentColor" d="M109.544 28.6231C109.544 28.7264 109.503 29.2739 109.42 30.2656H93.7539C94.0837 30.9061 94.6334 31.402 95.403 31.7532C96.1725 32.0838 97.1345 32.2491 98.2888 32.2491C99.2783 32.2491 100.103 32.1561 100.762 31.9701C101.45 31.7842 102.192 31.4639 102.989 31.0094L107.853 34.6973C105.655 36.5155 102.37 37.4245 98.0003 37.4245C95.2793 37.4245 92.8881 37.0526 90.8268 36.3089C88.7655 35.5444 87.1714 34.4907 86.0445 33.1478C84.9176 31.8048 84.3542 30.2966 84.3542 28.6231C84.3542 26.9289 84.9039 25.4207 86.0033 24.0984C87.1301 22.7555 88.6555 21.7121 90.5794 20.9684C92.5308 20.2246 94.7159 19.8527 97.1345 19.8527C99.4157 19.8527 101.491 20.1936 103.36 20.8754C105.256 21.5572 106.754 22.5592 107.853 23.8815C108.98 25.2038 109.544 26.7843 109.544 28.6231ZM97.2169 24.6253C96.255 24.6253 95.4579 24.8216 94.8258 25.2141C94.1937 25.6067 93.7814 26.1645 93.589 26.8876H100.845C100.653 26.1852 100.24 25.6377 99.6081 25.2451C98.976 24.8319 98.1789 24.6253 97.2169 24.6253Z"/>
+      <path fill="currentColor" d="M127.037 36.5258C125.635 37.125 123.725 37.4245 121.307 37.4245C118.146 37.4245 115.713 36.8564 114.009 35.72C112.305 34.563 111.453 32.8379 111.453 30.5446V26.2058H108.361V21.0923H111.453V16.3507H120.771V21.0923H125.388V26.2058H120.771V30.4826C120.771 30.9991 120.949 31.402 121.307 31.6912C121.664 31.9805 122.131 32.1251 122.708 32.1251C123.505 32.1251 124.206 31.9701 124.811 31.6602L127.037 36.5258Z"/>
+      <path fill="currentColor" d="M143.536 36.5258C142.134 37.125 140.224 37.4245 137.805 37.4245C134.645 37.4245 132.212 36.8564 130.508 35.72C128.804 34.563 127.952 32.8379 127.952 30.5446V26.2058H124.86V21.0923H127.952V16.3507H137.269V21.0923H141.887V26.2058H137.269V30.4826C137.269 30.9991 137.448 31.402 137.805 31.6912C138.163 31.9805 138.63 32.1251 139.207 32.1251C140.004 32.1251 140.705 31.9701 141.31 31.6602L143.536 36.5258Z"/>
+      <path fill="currentColor" d="M167.213 28.6231C167.213 28.7264 167.172 29.2739 167.089 30.2656H151.423C151.753 30.9061 152.303 31.402 153.072 31.7532C153.842 32.0838 154.804 32.2491 155.958 32.2491C156.947 32.2491 157.772 32.1561 158.432 31.9701C159.119 31.7842 159.861 31.4639 160.658 31.0094L165.523 34.6973C163.324 36.5155 160.039 37.4245 155.669 37.4245C152.948 37.4245 150.557 37.0526 148.496 36.3089C146.435 35.5444 144.84 34.4907 143.714 33.1478C142.587 31.8048 142.023 30.2966 142.023 28.6231C142.023 26.9289 142.573 25.4207 143.672 24.0984C144.799 22.7555 146.325 21.7121 148.249 20.9684C150.2 20.2246 152.385 19.8527 154.804 19.8527C157.085 19.8527 159.16 20.1936 161.029 20.8754C162.925 21.5572 164.423 22.5592 165.523 23.8815C166.649 25.2038 167.213 26.7843 167.213 28.6231ZM154.886 24.6253C153.924 24.6253 153.127 24.8216 152.495 25.2141C151.863 25.6067 151.451 26.1645 151.258 26.8876H158.514C158.322 26.1852 157.909 25.6377 157.277 25.2451C156.645 24.8319 155.848 24.6253 154.886 24.6253Z"/>
+      <path fill="currentColor" d="M176.956 21.9911C178.605 20.5655 181.037 19.8527 184.253 19.8527V26.0509C183.511 25.9682 182.824 25.9269 182.191 25.9269C179.003 25.9269 177.409 27.1459 177.409 29.5838V37.1146H168.092V20.1626H176.956V21.9911Z"/>
+      <path fill="currentColor" d="M196.545 37.4245C194.044 37.4245 191.791 37.0526 189.784 36.3089C187.805 35.5444 186.252 34.5011 185.126 33.1788C183.999 31.8358 183.435 30.3173 183.435 28.6231C183.435 26.9289 183.999 25.4207 185.126 24.0984C186.252 22.7555 187.805 21.7121 189.784 20.9684C191.791 20.2246 194.044 19.8527 196.545 19.8527C199.074 19.8527 201.328 20.2246 203.307 20.9684C205.313 21.7121 206.866 22.7555 207.965 24.0984C209.092 25.4207 209.655 26.9289 209.655 28.6231C209.655 30.3173 209.092 31.8358 207.965 33.1788C206.866 34.5011 205.313 35.5444 203.307 36.3089C201.328 37.0526 199.074 37.4245 196.545 37.4245ZM196.545 31.9701C197.617 31.9701 198.497 31.6809 199.184 31.1024C199.871 30.5032 200.215 29.6768 200.215 28.6231C200.215 27.5694 199.871 26.7533 199.184 26.1748C198.497 25.5963 197.617 25.3071 196.545 25.3071C195.473 25.3071 194.594 25.5963 193.907 26.1748C193.22 26.7533 192.876 27.5694 192.876 28.6231C192.876 29.6768 193.22 30.5032 193.907 31.1024C194.594 31.6809 195.473 31.9701 196.545 31.9701Z"/>
+      <path fill="currentColor" d="M219.333 37.4245C217.409 37.4245 215.512 37.2696 213.644 36.9597C211.775 36.6498 210.263 36.2469 209.109 35.751L211.665 31.1334C212.709 31.6086 213.946 31.9805 215.375 32.2491C216.804 32.5176 218.192 32.6519 219.539 32.6519C220.611 32.6519 221.353 32.59 221.765 32.466C222.205 32.3214 222.425 32.1148 222.425 31.8462C222.425 31.5776 222.15 31.3916 221.6 31.2883C221.078 31.185 220.212 31.0817 219.003 30.9784C217.162 30.8131 215.595 30.6065 214.303 30.3586C213.011 30.09 211.871 29.5838 210.881 28.8401C209.919 28.0963 209.438 27.0323 209.438 25.648C209.438 24.553 209.878 23.5716 210.758 22.7039C211.637 21.8361 212.943 21.144 214.674 20.6275C216.433 20.1109 218.536 19.8527 220.982 19.8527C222.686 19.8527 224.349 19.9767 225.97 20.2246C227.619 20.4518 229.021 20.7927 230.175 21.2473L227.619 25.8649C225.641 25.0385 223.469 24.6253 221.106 24.6253C219.072 24.6253 218.055 24.8939 218.055 25.4311C218.055 25.6996 218.33 25.8959 218.879 26.0199C219.429 26.1232 220.295 26.2265 221.477 26.3298C223.318 26.4951 224.871 26.712 226.135 26.9806C227.427 27.2492 228.554 27.7554 229.516 28.4992C230.505 29.2429 231 30.307 231 31.6912C231 32.7449 230.56 33.7056 229.681 34.5734C228.801 35.4411 227.482 36.1332 225.723 36.6498C223.964 37.1663 221.834 37.4245 219.333 37.4245Z"/>
+    </svg>
+  </div>
+
+  <!-- Decorative illustration (img_1.svg) -->
+  <div class="cdeco a" style="--d:0s">
+    <svg viewBox="0 0 1053 803" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle opacity="0.3" cx="628.552" cy="87.4341" r="347.937" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-cw" style="--sd:90s"/>
+      <ellipse cx="546.5" cy="337.5" rx="82" ry="81.5" fill="#02CBEF" stroke="#02CBEF" stroke-width="6" stroke-miterlimit="10"/>
+      <ellipse cx="892.5" cy="514.5" rx="47" ry="46.5" fill="#02CBEF" stroke="#02CBEF" stroke-width="6" stroke-miterlimit="10"/>
+      <circle cx="700.242" cy="157.213" r="452.127" stroke="#02CBEF" stroke-width="6" stroke-miterlimit="10"/>
+      <circle opacity="0.3" cx="775.756" cy="236.55" r="563.964" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-ccw" style="--sd:70s"/>
+      <circle opacity="0.3" cx="603.699" cy="49.1992" r="602.199" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-cw" style="--sd:110s"/>
+    </svg>
+  </div>
+
+  <!-- Title block -->
+  <div class="s01b a" style="--d:.2s">
+    <h1 class="s01t">Растём<br>через гипотезы —<br>от рассылки<br>до интерфейса</h1>
+  </div>
+
+  <!-- Footers -->
+  <div class="s01foot-l a" style="--d:.4s">MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</div>
+  <div class="s01foot-r a" style="--d:.4s">ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 02 — WHO WE ARE
+══════════════════════════════════════════════ -->
+<div class="slide" id="s02">
+  <div class="s02title a" style="--d:0s">Разработчик и интегратор<br>решений для роста продукта</div>
+  <div class="s02sub a" style="--d:.15s">Помогаем компаниям расти через два направления — развитие продукта<br>и автоматизацию коммуникаций.</div>
+
+  <div class="s02cols">
+    <!-- Column 1 -->
+    <div class="a" style="--d:.3s">
+      <div class="s02col-label">Product Growth</div>
+      <div class="s02col-title">От идеи до работающего<br>продукта</div>
+      <div class="s02col-body">Строим и итерируем цифровые продукты — от лендинга до полноценного веб-сервиса.</div>
+      <div class="s02list">
+        <div class="s02li"><span class="arr">→</span>Лендинги и конверсионные страницы</div>
+        <div class="s02li"><span class="arr">→</span>Веб-продукты и мини-приложения</div>
+        <div class="s02li"><span class="arr">→</span>Мобильные решения</div>
+        <div class="s02li"><span class="arr">→</span>AI внутри продукта</div>
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div class="a" style="--d:.42s">
+      <div class="s02col-label">CRM-коммуникации</div>
+      <div class="s02col-title">Превращаем базу<br>в повторные продажи</div>
+      <div class="s02col-body">Выстраиваем систему коммуникаций, которая работает без ручного управления и растит LTV.</div>
+      <div class="s02list">
+        <div class="s02li"><span class="arr">→</span>Email и SMS-рассылки</div>
+        <div class="s02li"><span class="arr">→</span>Триггерные цепочки</div>
+        <div class="s02li"><span class="arr">→</span>Сегментация и персонализация</div>
+        <div class="s02li"><span class="arr">→</span>Чат-боты и омниканал</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.5s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 03 — PROBLEM
+══════════════════════════════════════════════ -->
+<div class="slide" id="s03">
+  <div class="s03title a" style="--d:0s">Продукты теряют деньги<br>не там, где кажется</div>
+  <div class="s03label a" style="--d:.1s">Проблема рынка</div>
+
+  <div class="s03row">
+    <!-- Column 1 -->
+    <div class="s03col a" style="--d:.25s">
+      <div class="s03x">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M10 10L42 42M42 10L10 42" stroke="#151515" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="s03ct">Решения<br>без данных</div>
+      <p class="s03cb">Без данных, без гипотез, без проверки — команда работает&nbsp;на ощущениях вместо метрик.</p>
+    </div>
+
+    <div class="s03div"></div>
+
+    <!-- Column 2 -->
+    <div class="s03col a" style="--d:.35s">
+      <div class="s03x">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M10 10L42 42M42 10L10 42" stroke="#151515" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="s03ct">База клиентов есть,<br>повторных продаж нет</div>
+      <p class="s03cb">Компания умеет привлекать, но&nbsp;не умеет удерживать. LTV остаётся&nbsp;на уровне первой покупки.</p>
+    </div>
+
+    <div class="s03div"></div>
+
+    <!-- Column 3 -->
+    <div class="s03col a" style="--d:.45s">
+      <div class="s03x">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M10 10L42 42M42 10L10 42" stroke="#151515" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="s03ct">Интерфейс<br>переделывается «на&nbsp;глаз»</div>
+      <p class="s03cb">Редизайн без замеров, без A/B тестов, без понимания, где пользователь отваливается.</p>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.5s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 04 — OUR APPROACH
+══════════════════════════════════════════════ -->
+<div class="slide" id="s04">
+  <div class="s04title a" style="--d:0s">Мы системно<br>решаем задачу роста</div>
+  <div class="s04label a" style="--d:.1s">Наш подход</div>
+  <div class="s04sub a" style="--d:.2s">Каждое решение — эксперимент с&nbsp;измеримым результатом.</div>
+
+  <!-- Diagram -->
+  <div class="s04diagram a" style="--d:.3s">
+    <svg width="860" height="860" viewBox="0 0 1000 1000" fill="none">
+      <defs>
+        <marker id="ah4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#00C8F0" opacity=".7"/>
+        </marker>
+      </defs>
+      <!-- Decorative static rings -->
+      <circle cx="500" cy="500" r="260" stroke="#00C8F0" stroke-width="1" opacity=".07"/>
+      <circle cx="500" cy="500" r="360" stroke="#00C8F0" stroke-width="1" opacity=".1"/>
+      <circle cx="500" cy="500" r="420" stroke="#00C8F0" stroke-width="1.5" opacity=".12"/>
+      <!-- Spinning dashed ring — outermost -->
+      <circle cx="500" cy="500" r="475" stroke="#00C8F0" stroke-width="2" stroke-dasharray="12 18" opacity=".3" class="spin-cw" style="--sd:28s"/>
+      <!-- Arc arrows going clockwise between nodes (drawn at r≈390 from center) -->
+      <!-- TOP → RIGHT -->
+      <path d="M 645 152 A 390 390 0 0 1 863 360" stroke="#00C8F0" stroke-width="2.5" stroke-dasharray="7 6" opacity=".55" marker-end="url(#ah4)" fill="none"/>
+      <!-- RIGHT → BOTTOM -->
+      <path d="M 863 640 A 390 390 0 0 1 645 848" stroke="#00C8F0" stroke-width="2.5" stroke-dasharray="7 6" opacity=".55" marker-end="url(#ah4)" fill="none"/>
+      <!-- BOTTOM → LEFT -->
+      <path d="M 355 848 A 390 390 0 0 1 137 640" stroke="#00C8F0" stroke-width="2.5" stroke-dasharray="7 6" opacity=".55" marker-end="url(#ah4)" fill="none"/>
+      <!-- LEFT → TOP -->
+      <path d="M 137 360 A 390 390 0 0 1 355 152" stroke="#00C8F0" stroke-width="2.5" stroke-dasharray="7 6" opacity=".55" marker-end="url(#ah4)" fill="none"/>
+      <!-- Center circle -->
+      <circle cx="500" cy="500" r="175" fill="#00C8F0"/>
+      <text text-anchor="middle" fill="#000" font-family="Manrope,sans-serif" font-size="36" font-weight="600">
+        <tspan x="500" y="470">Каждое</tspan>
+        <tspan x="500" dy="46">решение —</tspan>
+        <tspan x="500" dy="46">эксперимент</tspan>
+      </text>
+      <!-- Node TOP (500,170) r=100 -->
+      <circle cx="500" cy="170" r="100" fill="#1C1C1C" stroke="#00C8F0" stroke-width="2.5" style="animation:nodePulse 2s ease-in-out infinite 0s"/>
+      <text x="500" y="179" text-anchor="middle" fill="white" font-family="Manrope,sans-serif" font-size="34" font-weight="500">Гипотеза</text>
+      <!-- Node RIGHT (830,500) r=100 -->
+      <circle cx="830" cy="500" r="100" fill="#1C1C1C" stroke="#00C8F0" stroke-width="2.5" style="animation:nodePulse 2s ease-in-out infinite .5s"/>
+      <text x="830" y="509" text-anchor="middle" fill="white" font-family="Manrope,sans-serif" font-size="34" font-weight="500">Запуск</text>
+      <!-- Node BOTTOM (500,830) r=100 -->
+      <circle cx="500" cy="830" r="100" fill="#1C1C1C" stroke="#00C8F0" stroke-width="2.5" style="animation:nodePulse 2s ease-in-out infinite 1s"/>
+      <text x="500" y="839" text-anchor="middle" fill="white" font-family="Manrope,sans-serif" font-size="34" font-weight="500">Замер</text>
+      <!-- Node LEFT (170,500) r=100 -->
+      <circle cx="170" cy="500" r="100" fill="#1C1C1C" stroke="#00C8F0" stroke-width="2.5" style="animation:nodePulse 2s ease-in-out infinite 1.5s"/>
+      <text x="170" y="509" text-anchor="middle" fill="white" font-family="Manrope,sans-serif" font-size="34" font-weight="500">Итерация</text>
+    </svg>
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.4s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 05 — PRODUCT GROWTH
+══════════════════════════════════════════════ -->
+<div class="slide" id="s05">
+  <div class="s05title a" style="--d:0s">От первого экрана<br>до сложного продукта</div>
+  <div class="s05label a" style="--d:.1s">Product Growth</div>
+
+  <div class="s05cards">
+    <!-- Card 1 -->
+    <div class="s05card a" style="grid-column:1/3;--d:.2s">
+      <div class="s05card-icon">🎯</div>
+      <div class="s05card-title">Лендинги</div>
+      <div class="s05card-body">Конверсионные страницы, которые проверяют гипотезу за дни</div>
+    </div>
+    <!-- Card 2 -->
+    <div class="s05card a" style="grid-column:3/5;--d:.28s">
+      <div class="s05card-icon">⚡</div>
+      <div class="s05card-title">Мини-приложения</div>
+      <div class="s05card-body">Telegram-боты, веб-апп и внутренние инструменты</div>
+    </div>
+    <!-- Card 3 -->
+    <div class="s05card a" style="grid-column:5/7;--d:.36s">
+      <div class="s05card-icon">🌐</div>
+      <div class="s05card-title">Веб-продукты</div>
+      <div class="s05card-body">Полноценные SaaS, платформы и сервисы с итерацией по данным</div>
+    </div>
+    <!-- Card 4 -->
+    <div class="s05card a" style="grid-column:1/4;--d:.44s;padding:32px 40px">
+      <div class="s05card-icon">📱</div>
+      <div class="s05card-title">Мобайл</div>
+      <div class="s05card-body">iOS и Android приложения с аналитикой поведения</div>
+    </div>
+    <!-- Card 5 — dark -->
+    <div class="s05card dark a" style="grid-column:4/7;--d:.52s;padding:32px 40px">
+      <div class="s05card-icon">🤖</div>
+      <div class="s05card-title">AI внутри продукта</div>
+      <div class="s05card-body">Интеграция языковых моделей и автоматизации в UX</div>
+      <div class="s05card-tag">NEW DIRECTION</div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.6s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 06 — CRM
+══════════════════════════════════════════════ -->
+<div class="slide" id="s06">
+  <div class="s06title a" style="--d:0s">Клиент купил один раз —<br>это ещё не успех</div>
+  <div class="s06label a" style="--d:.1s">CRM-коммуникации</div>
+
+  <div class="s06cards">
+    <div class="s06card a" style="--d:.2s">
+      <div class="s06card-title">Чат-центры</div>
+      <div class="s06card-body">Telegram, WhatsApp, Viber в&nbsp;единой системе с&nbsp;автоответами</div>
+    </div>
+    <div class="s06card a" style="--d:.3s">
+      <div class="s06card-title">Email и SMS</div>
+      <div class="s06card-body">Рассылки с&nbsp;персонализацией по&nbsp;поведению и&nbsp;истории покупок</div>
+    </div>
+    <div class="s06card a" style="--d:.4s">
+      <div class="s06card-title">Триггерные цепочки</div>
+      <div class="s06card-body">Автосценарии на&nbsp;любые события: регистрация, покупка, корзина</div>
+    </div>
+    <div class="s06card a" style="--d:.5s">
+      <div class="s06card-title">Сегментация базы</div>
+      <div class="s06card-body">RFM-сегменты для&nbsp;точечных коммуникаций по&nbsp;ценности</div>
+    </div>
+  </div>
+
+  <div class="s06formula a" style="--d:.6s">
+    <span>Коммуникации</span>
+    <span style="font-weight:300;opacity:.5">+</span>
+    <span>данные</span>
+    <span style="font-weight:300;opacity:.5">=</span>
+    <span>рост LTV</span>
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.7s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 07 — CASE 1
+══════════════════════════════════════════════ -->
+<div class="slide scase" id="s07">
+  <div class="scase-title a" style="--d:0s">Как A/B-тесты на лендинге<br>подняли CR на треть</div>
+  <div class="scase-label a" style="--d:.1s">Кейс 1 · E-commerce</div>
+
+  <div class="scase-cards" style="top:360px">
+    <div class="scase-card a" style="--d:.25s">
+      <div class="scase-cardlabel">ЗАДАЧА</div>
+      <div class="scase-cardtitle">Низкая конверсия на странице товара</div>
+      <div class="scase-cardbody">Интернет-магазин одежды получал трафик, но&nbsp;конверсия в&nbsp;покупку держалась на&nbsp;уровне 1.2%. Команда переделывала страницу «на&nbsp;глаз» — без&nbsp;данных о&nbsp;поведении пользователей.</div>
+    </div>
+    <div class="scase-card a" style="--d:.35s">
+      <div class="scase-cardlabel">РЕШЕНИЕ</div>
+      <div class="scase-cardtitle">Цикл гипотез по&nbsp;методологии Mailfit</div>
+      <div class="scase-cardbody">Провели аудит поведения через Hotjar и&nbsp;GA4. Сформулировали 7&nbsp;гипотез. Запустили A/B-тесты: позиция CTA, социальные доказательства, фото&nbsp;товара.</div>
+    </div>
+    <div class="scase-card dark a" style="--d:.45s">
+      <div class="scase-cardlabel">РЕЗУЛЬТАТ</div>
+      <div class="scase-cardtitle">Конверсия с 1.2% до 1.6%</div>
+      <div class="resnum">CR +34%</div>
+      <div class="ressub">за 3 месяца итераций</div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.55s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 08 — CASE 2
+══════════════════════════════════════════════ -->
+<div class="slide scase" id="s08">
+  <div class="scase-title a" style="--d:0s">Триггерные цепочки<br>удвоили LTV клиента</div>
+  <div class="scase-label a" style="--d:.1s">Кейс 2 · EdTech</div>
+
+  <div class="scase-cards" style="top:360px">
+    <div class="scase-card a" style="--d:.25s">
+      <div class="scase-cardlabel">ЗАДАЧА</div>
+      <div class="scase-cardtitle">Отток после первого месяца подписки</div>
+      <div class="scase-cardbody">Образовательная платформа теряла 60% подписчиков после&nbsp;первого месяца. Email делались раз в&nbsp;месяц без&nbsp;персонализации.</div>
+    </div>
+    <div class="scase-card a" style="--d:.35s">
+      <div class="scase-cardlabel">РЕШЕНИЕ</div>
+      <div class="scase-cardtitle">Поведенческие триггеры и&nbsp;сегментация</div>
+      <div class="scase-cardbody">Настроили Letteros с&nbsp;интеграцией в&nbsp;LMS. 4&nbsp;сегмента по&nbsp;активности. 3&nbsp;онбординговые цепочки, реактивация и&nbsp;апселл.</div>
+    </div>
+    <div class="scase-card dark a" style="--d:.45s">
+      <div class="scase-cardlabel">РЕЗУЛЬТАТ</div>
+      <div class="scase-cardtitle">Срок подписки с&nbsp;1.8 до&nbsp;3.6 мес</div>
+      <div class="resnum">LTV ×2</div>
+      <div class="ressub">за 4 месяца работы</div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.55s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 09 — CASE 3
+══════════════════════════════════════════════ -->
+<div class="slide scase" id="s09">
+  <div class="scase-title a" style="--d:0s">Новый сайт +<br>CRM-автоматизация дали рост<br>выручки на 28%</div>
+  <div class="scase-label a" style="--d:.1s">Кейс 3 · Ритейл</div>
+
+  <div class="scase-cards" style="top:410px">
+    <div class="scase-card a" style="--d:.25s">
+      <div class="scase-cardlabel">ЗАДАЧА</div>
+      <div class="scase-cardtitle">Устаревший сайт и&nbsp;хаос в&nbsp;коммуникациях</div>
+      <div class="scase-cardbody">Сеть магазинов: старый сайт не&nbsp;конвертировал мобильный трафик, база не&nbsp;использовалась, рассылки раз в&nbsp;квартал.</div>
+    </div>
+    <div class="scase-card a" style="--d:.35s">
+      <div class="scase-cardlabel">РЕШЕНИЕ</div>
+      <div class="scase-cardtitle">Новый продукт и&nbsp;связанная CRM-система</div>
+      <div class="scase-cardbody">Параллельно: редизайн мобильного сайта по&nbsp;CJM и&nbsp;настройка Letteros с&nbsp;сегментацией по&nbsp;заказам и&nbsp;среднему чеку.</div>
+    </div>
+    <div class="scase-card dark a" style="--d:.45s">
+      <div class="scase-cardlabel">РЕЗУЛЬТАТ</div>
+      <div class="scase-cardtitle">Выручка без роста рекламного бюджета</div>
+      <div class="resnum">+28%</div>
+      <div class="ressub">выручки за 6 месяцев</div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.55s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 10 — TEAM
+══════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="s10title a" style="--d:0s">Команда</div>
+
+  <div class="s10grid">
+    <!-- Person 1 -->
+    <div class="tperson a" style="--d:.15s">
+      <div class="tphoto">
+        <div class="tphoto-init">МТ</div>
+        <img src="M.png" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="tname">Михаил Терентьев</div>
+      <div class="tdesc">Основатель агентства Mailfit, платформы Letteros и&nbsp;сообщества @CRMParty</div>
+      <div class="tcontact"><a href="mailto:m@mailfit.com">m@mailfit.com</a><br><a href="https://t.me/mterentev" target="_blank">t.me/mterentev</a></div>
+    </div>
+    <!-- Person 2 -->
+    <div class="tperson a" style="--d:.25s">
+      <div class="tphoto">
+        <div class="tphoto-init">ЮП</div>
+        <img src="J.png" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="tname">Юлия Плосконосова</div>
+      <div class="tdesc">Генеральный директор и&nbsp;эксперт Mailfit в&nbsp;России</div>
+      <div class="tcontact"><a href="mailto:julia@mailfit.com">julia@mailfit.com</a><br><a href="https://t.me/JPloskonosova" target="_blank">t.me/JPloskonosova</a></div>
+    </div>
+    <!-- Person 3 -->
+    <div class="tperson a" style="--d:.35s">
+      <div class="tphoto">
+        <div class="tphoto-init">ИХ</div>
+        <img src="I.png" alt="" onerror="this.style.display='none'">
+      </div>
+      <div class="tname">Ирина Хафизова</div>
+      <div class="tdesc">Продакт и&nbsp;арт-директор Letteros, эксперт Mailfit в&nbsp;Узбекистане</div>
+      <div class="tcontact"><a href="mailto:i.khafizova@letteros.com">i.khafizova@letteros.com</a><br><a href="https://t.me/irinahafizova" target="_blank">t.me/irinahafizova</a></div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.45s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 11 — CONTACTS
+══════════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="s11title a" style="--d:0s">Спасибо</div>
+
+  <div class="s11qrs">
+    <!-- QR 1 — Letteros -->
+    <div class="s11qrbox a" style="--d:.2s">
+      <div class="s11qrcard">
+        <div id="qr-letteros"></div>
+      </div>
+      <a href="https://letteros.com" target="_blank" class="s11qrlabel">letteros.com</a>
+    </div>
+    <!-- QR 2 — Mailfit -->
+    <div class="s11qrbox a" style="--d:.35s">
+      <div class="s11qrcard">
+        <div id="qr-mailfit"></div>
+      </div>
+      <a href="https://mailfit.uz" target="_blank" class="s11qrlabel">mailfit.uz</a>
+    </div>
+  </div>
+
+  <!-- Decoration img_2.svg -->
+  <div class="s11deco">
+    <svg viewBox="0 0 1022 1080" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%">
+      <circle cx="688.673" cy="496.434" r="347.937" stroke="#02CBEF" stroke-width="6" stroke-miterlimit="10"/>
+      <ellipse opacity="0.3" cx="688.5" cy="496.5" rx="137" ry="136.5" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-cw" style="--sd:90s"/>
+      <circle opacity="0.3" cx="616.983" cy="566.212" r="452.127" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-ccw" style="--sd:70s"/>
+      <circle opacity="0.3" cx="565.466" cy="645.55" r="563.964" stroke="#02CBEF" stroke-width="3" stroke-miterlimit="10" stroke-dasharray="14 14" class="spin-cw" style="--sd:110s"/>
+      <circle cx="713.521" cy="458.199" r="602.199" stroke="#02CBEF" stroke-width="6" stroke-miterlimit="10"/>
+    </svg>
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.45s">
+    <span>MAILFIT &nbsp;&nbsp;|&nbsp;&nbsp; LETTEROS</span>
+    <span>ТАШКЕНТ &nbsp;&nbsp;|&nbsp;&nbsp; МАЙ 2026</span>
+  </div>
+</div>
+
+</div><!-- /#stage -->
+</div><!-- /#presentation -->
+
+<!-- Nav dots -->
+<div id="navdots"></div>
+
+<script>
+const TOTAL = 11;
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('navdots');
+
+for(let i = 0; i < TOTAL; i++){
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  d.addEventListener('click', () => go(i));
+  dotsEl.appendChild(d);
+}
+
+function go(n){
+  slides[cur].classList.remove('active');
+  dotsEl.children[cur].classList.remove('on');
+  cur = (n + TOTAL) % TOTAL;
+  slides[cur].classList.add('active');
+  dotsEl.children[cur].classList.add('on');
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(cur-1);
+  else if(e.key==='Home') go(0);
+  else if(e.key==='End') go(TOTAL-1);
+});
+
+document.getElementById('stage').addEventListener('click', e => {
+  if(e.target.closest('button') || e.target.closest('.dot')) return;
+  go(cur+1);
+});
+
+function scale(){
+  const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  const ml = (window.innerWidth - 1920*s) / 2;
+  const mt = (window.innerHeight - 1080*s) / 2;
+  const stage = document.getElementById('stage');
+  stage.style.transform = `scale(${s})`;
+  stage.style.left = ml + 'px';
+  stage.style.top = mt + 'px';
+}
+window.addEventListener('resize', scale);
+scale();
+
+// Activate first slide
+slides[0].classList.add('active');
+
+// Generate QR codes
+if(typeof QRCode !== 'undefined'){
+  new QRCode(document.getElementById('qr-letteros'),{text:'https://letteros.com',width:320,height:320,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+  new QRCode(document.getElementById('qr-mailfit'),{text:'https://mailfit.uz',width:320,height:320,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});
+}
+</script>
+</body>
+</html>
