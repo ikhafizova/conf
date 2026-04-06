@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Презентация</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --cyan:#00C8F0;
+  --dark:#151515;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Manrope',system-ui,sans-serif}
+#presentation{position:fixed;inset:0;overflow:hidden}
+#stage{position:absolute;width:1920px;height:1080px;transform-origin:top left}
+
+/* ── Entrance animation ── */
+@keyframes slideUpFade{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.a{animation-duration:.65s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both;animation-delay:var(--d,0s)}
+.slide.active .a{animation-name:slideUpFade}
+
+/* ── Spin animations (SVG decoration) ── */
+@keyframes spinCW{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+.spin-cw{animation:spinCW var(--sd,60s) linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+.spin-ccw{animation:spinCCW var(--sd,80s) linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+
+/* ── Pulse (diagram nodes) ── */
+@keyframes nodePulse{0%,100%{filter:drop-shadow(0 0 0 rgba(0,200,240,0))}50%{filter:drop-shadow(0 0 14px rgba(0,200,240,.55))}}
+
+/* ── Slides ── */
+.slide{position:absolute;inset:0;width:1920px;height:1080px;opacity:0;pointer-events:none;transition:opacity .35s ease;overflow:hidden}
+.slide.active{opacity:1;pointer-events:auto}
+
+/* ── Footer (все слайды кроме первого) ── */
+.sfoot{position:absolute;bottom:44px;left:80px;right:80px;display:flex;justify-content:space-between;font-size:14px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.sfoot-dk{color:rgba(255,255,255,.28)}  /* тёмный фон */
+.sfoot-lt{color:rgba(0,0,0,.28)}        /* светлый фон */
+
+/* ── Nav dots ── */
+#navdots{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:999;align-items:center}
+.dot{width:8px;height:8px;border-radius:4px;background:rgba(150,150,150,.45);box-shadow:0 0 0 1.5px rgba(0,0,0,.12);cursor:pointer;transition:all .3s ease}
+.dot.on{width:24px;background:var(--cyan)}
+
+/* ──────────────────────────────────────────────
+   СЛАЙД 01 — ОБЛОЖКА (тёмный)
+   Замените текст и иллюстрацию
+────────────────────────────────────────────── */
+#s01{background:#151515;color:#fff}
+.s01title{position:absolute;top:320px;left:80px;font-size:140px;font-weight:400;line-height:.85;letter-spacing:-.02em;color:#fff;white-space:nowrap}
+.s01foot-l{position:absolute;bottom:44px;left:80px;font-size:22px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.s01foot-r{position:absolute;bottom:44px;right:80px;font-size:22px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+
+/* ──────────────────────────────────────────────
+   СЛАЙД 02 — КОНТЕНТНЫЙ (тёмный)
+   Шаблон: заголовок + текст
+────────────────────────────────────────────── */
+#s02{background:#151515;color:#fff}
+.s02title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#fff}
+.s02body{position:absolute;top:400px;left:80px;right:80px;font-size:32px;font-weight:400;line-height:1.3;color:#fff}
+
+/* ──────────────────────────────────────────────
+   СЛАЙД 03 — КОНТЕНТНЫЙ (светлый)
+   Шаблон: заголовок + карточки
+────────────────────────────────────────────── */
+#s03{background:#fff;color:#151515}
+.s03title{position:absolute;top:80px;left:80px;font-size:100px;font-weight:600;line-height:.9;letter-spacing:-.02em;color:#151515}
+.s03cards{position:absolute;top:360px;left:80px;right:80px;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.s03card{border-radius:20px;padding:44px 40px;background:#D1F8FF}
+.s03card-title{font-size:50px;font-weight:600;line-height:1.2;color:#151515;margin-bottom:16px}
+.s03card-body{font-size:32px;font-weight:400;line-height:1.3;color:#151515}
+
+/* ── Print / PDF ── */
+@media print{
+  @page{size:20in 11.25in;margin:0}
+  *{animation:none!important;transition:none!important}
+  html,body{width:1920px;height:auto;overflow:visible;background:#000}
+  #presentation{position:relative;width:1920px;height:auto;overflow:visible}
+  #stage{position:relative!important;width:1920px!important;height:auto!important;transform:none!important;left:0!important;top:0!important}
+  .slide{position:relative!important;width:1920px!important;height:1080px!important;opacity:1!important;pointer-events:auto;page-break-after:always;break-after:page;overflow:hidden;display:block!important}
+  .a{animation:none!important;opacity:1!important;transform:translateY(0)!important}
+  #navdots{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="presentation">
+<div id="stage">
+
+<!-- ═══════════════════════════════════════════
+     СЛАЙД 01 — ОБЛОЖКА
+══════════════════════════════════════════════ -->
+<div class="slide" id="s01">
+
+  <!-- Логотипы — вставить SVG inline -->
+  <!-- <div style="position:absolute;top:52px;left:80px">ЛОГОТИП</div> -->
+
+  <!-- Заголовок -->
+  <h1 class="s01title a" style="--d:.2s">
+    Заголовок<br>
+    презентации
+  </h1>
+
+  <!-- Декоративная иллюстрация — вставить SVG inline с классами spin-cw/spin-ccw -->
+  <!-- Важно: позиционировать через cx/cy, не через transform="matrix(...)" -->
+
+  <div class="s01foot-l a" style="--d:.4s">КОМПАНИЯ</div>
+  <div class="s01foot-r a" style="--d:.4s">ГОРОД &nbsp;&nbsp;|&nbsp;&nbsp; МЕСЯЦ ГОД</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     СЛАЙД 02 — КОНТЕНТ (тёмный)
+══════════════════════════════════════════════ -->
+<div class="slide" id="s02">
+  <h2 class="s02title a" style="--d:0s">
+    Заголовок<br>слайда
+  </h2>
+
+  <div class="s02body a" style="--d:.2s">
+    Текст слайда. Кегль 32, межстрочное 1.3.<br>
+    Висячие предлоги привязывать через&nbsp;&amp;nbsp;
+  </div>
+
+  <div class="sfoot sfoot-dk a" style="--d:.4s">
+    <span>КОМПАНИЯ</span>
+    <span>ГОРОД &nbsp;&nbsp;|&nbsp;&nbsp; МЕСЯЦ ГОД</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     СЛАЙД 03 — КАРТОЧКИ (светлый)
+══════════════════════════════════════════════ -->
+<div class="slide" id="s03">
+  <h2 class="s03title a" style="--d:0s">Заголовок</h2>
+
+  <div class="s03cards">
+    <div class="s03card a" style="--d:.15s">
+      <div class="s03card-title">Карточка 1</div>
+      <div class="s03card-body">Описание карточки. Кегль 32, line-height 1.3</div>
+    </div>
+    <div class="s03card a" style="--d:.25s">
+      <div class="s03card-title">Карточка 2</div>
+      <div class="s03card-body">Описание карточки.</div>
+    </div>
+    <div class="s03card a" style="--d:.35s">
+      <div class="s03card-title">Карточка 3</div>
+      <div class="s03card-body">Описание карточки.</div>
+    </div>
+  </div>
+
+  <div class="sfoot sfoot-lt a" style="--d:.45s">
+    <span>КОМПАНИЯ</span>
+    <span>ГОРОД &nbsp;&nbsp;|&nbsp;&nbsp; МЕСЯЦ ГОД</span>
+  </div>
+</div>
+
+</div><!-- /#stage -->
+</div><!-- /#presentation -->
+
+<!-- Nav dots -->
+<div id="navdots"></div>
+
+<script>
+const TOTAL = 3; /* <-- поменять на количество слайдов */
+let cur = 0;
+const slides = Array.from(document.querySelectorAll('.slide'));
+
+/* Nav dots */
+const nd = document.getElementById('navdots');
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' on':'');
+  d.addEventListener('click', () => go(i));
+  nd.appendChild(d);
+});
+
+function go(n) {
+  if(n < 0 || n >= TOTAL) return;
+  slides[cur].classList.remove('active');
+  nd.children[cur].classList.remove('on');
+  cur = n;
+  slides[cur].classList.add('active');
+  nd.children[cur].classList.add('on');
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(cur-1);
+  else if(e.key==='Home') go(0);
+  else if(e.key==='End') go(TOTAL-1);
+});
+
+document.getElementById('stage').addEventListener('click', e => {
+  if(e.target.closest('button')||e.target.closest('.dot')) return;
+  go(cur+1);
+});
+
+function scale() {
+  const s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+  const ml = (window.innerWidth - 1920*s) / 2;
+  const mt = (window.innerHeight - 1080*s) / 2;
+  const stage = document.getElementById('stage');
+  stage.style.transform = `scale(${s})`;
+  stage.style.left = ml + 'px';
+  stage.style.top = mt + 'px';
+}
+window.addEventListener('resize', scale);
+scale();
+
+slides[0].classList.add('active');
+
+/* QR-коды (пример) */
+/* if(typeof QRCode !== 'undefined') {
+  new QRCode(document.getElementById('qr-1'), {
+    text: 'https://example.com',
+    width: 320, height: 320,
+    colorDark: '#000', colorLight: '#fff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+} */
+</script>
+</body>
+</html>
